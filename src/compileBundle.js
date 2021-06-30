@@ -1,5 +1,4 @@
-const {promisify} = require('util')
-const sassRender = promisify(require('node-sass').render)
+const sass = require('sass')
 const path = require('path')
 const chalk = require('chalk')
 const url = require('url')
@@ -56,10 +55,10 @@ module.exports = async function compileBundle ({bundleName, variant}) {
   }
 
   const startTime = new Date()
-  const nodeSassResult = await sassRender({
+  const nodeSassResult = sass.renderSync({
     file: sassFile,
     includePaths: includePaths,
-    outputStyle: SASS_STYLE,
+    outputStyle: SASS_STYLE === 'nested' ? 'expanded' : SASS_STYLE,
     sourceComments: SASS_STYLE !== 'compressed',
     sourceMap: false
   })
