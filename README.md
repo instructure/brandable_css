@@ -56,6 +56,86 @@ paths:
     browsers_yml: config/browsers.yml
 ```
 
+## Indices
+
+> Since: v2.0.0
+
+The main output of `brandable_css` can be very big and is unfit for inclusion
+at runtime (e.g. in your bundle or over an HTTP request.) brandable_css supports
+emitting a _compact_ structure that is optimized for runtime inclusion referred
+to as an _index_. An index can be generated for only a subset of the bundles
+and requires a little processing to decode it into something usable.
+
+**Configuring an index**
+
+```yaml
+indices:
+    name_of_index:
+        keysz: Integer
+        path: Filepath
+        bundles: MinimatchGlob
+```
+
+Structure of an index:
+
+    index = Array.<
+        variants: Array.<String>,
+        checksums: Map.<
+            contrivedId: String,
+            variantChecksums: Array.<Union.<md5: String, Integer>>
+        >
+    >
+
+**Decoding the structure**
+
+`variants` is the set of available variants for the bundles contained in the
+index.
+
+`variantChecksums` is an ordered set: each element corresponds to the variant
+defined in the `variants` set at that index.
+
+When a variant checksum is defined as a number, it must be a treated as an index
+into the current bundle's variant checksum set; you can resolve the actual
+checksum by looking at the element in the set at that index. This is done as
+an optimization to avoid duplicate strings, which are 10 characters long.
+
+**Example index**
+
+```json
+[
+  [
+    "new_styles_normal_contrast",
+    "responsive_layout_normal_contrast",
+    "responsive_layout_high_contrast",
+    "new_styles_high_contrast",
+    "new_styles_normal_contrast_rtl",
+    "new_styles_high_contrast_rtl",
+    "responsive_layout_normal_contrast_rtl",
+    "responsive_layout_high_contrast_rtl"
+  ],
+  {
+    "10": ["cbc4135c8d", 0, 0, 0, "8323e1aa23", 4, 4, 4],
+    "15": ["16a8653e3f", 0, 0, 0, "e158453b86", 4, 4, 4],
+  }
+]
+```
+
+This index contains variant checksums for 2 bundles for 8 variants. The first
+bundle is identified as `10`, this is its "contrived ID" which is equal to the
+first `@keysz` characters of the MD5 digest of the bundle name. The variant
+CSS files for this particular bundle are found at the following paths:
+
+- @output_dir/new_styles_normal_contrast/${BUNDLE}-cbc4135c8d.css
+- @output_dir/responsive_layout_normal_contrast/${BUNDLE}-cbc4135c8d.css
+- @output_dir/responsive_layout_high_contrast/${BUNDLE}-cbc4135c8d.css
+- @output_dir/new_styles_high_contrast/${BUNDLE}-cbc4135c8d.css
+- @output_dir/new_styles_normal_contrast_rtl/${BUNDLE}-8323e1aa23.css
+- @output_dir/new_styles_high_contrast_rtl/${BUNDLE}-8323e1aa23.css
+- @output_dir/responsive_layout_normal_contrast_rtl/${BUNDLE}-8323e1aa23.css
+- @output_dir/responsive_layout_high_contrast_rtl/${BUNDLE}-8323e1aa23.css
+
+Resolving an ID to the actual bundle name is left to the caller.
+
 ## Changelog
 
 ### 2.0.0
@@ -68,6 +148,7 @@ paths:
   SASS_STYLE now defaults to "nested", so in a production environment where
   you want compressed output, be sure to specify `SASS_STYLE=compressed` when
   running brandable_css
+- Added support for indices
 
 ### 1.0.0
 
