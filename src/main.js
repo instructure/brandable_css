@@ -12,6 +12,7 @@ const CONFIG = require('./config')
 const PATHS = CONFIG.paths
 const VARIANTS = require('./variants')
 const cache = require('./cache')
+const generateIndex = require('./generateIndex')
 
 function cacheKey (bundleName, variant) {
   return [bundleName, variant].join(CONFIG.manifest_key_seperator)
@@ -120,6 +121,21 @@ async function processChangedBundles (changedBundles) {
       if (compileSelf) await compileUnlessIncludesNoVariables({variant})
     }))
   }))
+
+  for (const name of Object.keys(CONFIG.indices || {})) {
+    const { path, bundles, keysz } = CONFIG.indices[name]
+    const index = cache.createCache({ filename: path })
+
+    index.data = generateIndex({
+      combinedChecksums: cache.bundles_with_deps.data,
+      keysz,
+      manifestKeySeperator: CONFIG.manifest_key_seperator,
+      name,
+      pattern: bundles,
+    })
+
+    await index.save({ compact: true })
+  }
 
   if (_.isEmpty(changedBundles)) {
     console.info(chalk.green('no sass changes detected'))
@@ -244,3 +260,6 @@ exports.startWatcher = function startWatcher () {
   }
   watcher.on('raw', onFilesystemChange)
 }
+
+exports.contriveId = require('./contriveId')
+exports.config = CONFIG

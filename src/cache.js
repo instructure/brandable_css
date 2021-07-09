@@ -11,8 +11,7 @@ let cache = {
   }
 }
 
-function initCache (name) {
-  const filename = CONFIG.paths[name]
+function initCache ({ filename }) {
   let self = {
     isSaved: false,
 
@@ -31,19 +30,23 @@ function initCache (name) {
       return value
     },
 
-    save () {
+    save (opts = {}) {
       debug('saving', self.isSaved, filename)
       if (self.isSaved) return
       self.isSaved = true
-      return outputJsonAsync(filename, self.data, {spaces: 2})
+      return outputJsonAsync(filename, self.data, {spaces: opts.compact ? 0 : 2})
     },
 
     clearMatching (query) {
       self.data = _.omit(self.data, (v, key) => key.match(query))
     }
   }
-  cache[name] = self
+  return self
 }
-caches.forEach(initCache)
+
+caches.forEach(name => {
+  cache[name] = initCache({ filename: CONFIG.paths[name] })
+})
 
 module.exports = cache
+module.exports.createCache = initCache
