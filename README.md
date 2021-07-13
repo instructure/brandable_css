@@ -58,6 +58,17 @@ paths:
 
 ## Changelog
 
+### 2.0.0
+
+- SASS_STYLE environment variable is no longer appended to filenames, so where
+  by configuring `bundles_with_deps: ./a.json` you used to get either
+  `a.jsonnested` or `a.jsoncompressed` based on what SASS_STYLE indicated, you
+  now unconditionally get `a.json`
+- RAILS_ENV environment variable no longer controls SASS_STYLE in its absence;
+  SASS_STYLE now defaults to "nested", so in a production environment where
+  you want compressed output, be sure to specify `SASS_STYLE=compressed` when
+  running brandable_css
+
 ### 1.0.0
 
 - Re-released under `@instructure/brandable-css`
