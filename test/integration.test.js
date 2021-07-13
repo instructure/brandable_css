@@ -22,7 +22,7 @@ describe('brandable_css', () => {
   it('generates the manifest', async () => {
     const manifest = JSON.parse(
       fsX.readFileSync(
-        path.resolve(dist, 'bundles_with_deps.jsonnested'),
+        path.resolve(dist, 'bundles_with_deps.json'),
         'utf8'
       )
     )

@@ -1,7 +1,6 @@
 const debug = require('debug')('brandable_css:cache')
 const _ = require('lodash')
 const CONFIG = require('./config')
-const SASS_STYLE = require('./sass_style')
 const {readJsonSync, outputJsonAsync} = require('fs-extra-promise')
 
 const caches = ['file_checksums', 'bundles_with_deps']
@@ -13,7 +12,7 @@ let cache = {
 }
 
 function initCache (name) {
-  const filename = CONFIG.paths[name] + SASS_STYLE
+  const filename = CONFIG.paths[name]
   let self = {
     isSaved: false,
 
