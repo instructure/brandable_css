@@ -55,3 +55,15 @@ paths:
     # [autoprefixer]: https://autoprefixer.github.io/
     browsers_yml: config/browsers.yml
 ```
+
+## Changelog
+
+### 1.0.0
+
+- Re-released under `@instructure/brandable-css`
+- No longer transpiling (node) code to `lib/`, minimum required Node is now 12
+- Updated chokidar dependency
+
+## License
+
+MIT
