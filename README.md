@@ -138,6 +138,12 @@ Resolving an ID to the actual bundle name is left to the caller.
 
 ## Changelog
 
+### 3.0.0
+
+- Switched engine from node-sass to dart-sass as the former has reached end of
+  life status. Note that dart-sass is currently a lot slower than its previous
+  counterpart.
+
 ### 2.0.0
 
 - SASS_STYLE environment variable is no longer appended to filenames, so where
