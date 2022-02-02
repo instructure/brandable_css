@@ -67,7 +67,7 @@ async function findChangedBundles (bundles) {
         for (let filename of cached.includedFiles) {
           // Don't exit early if a file has changed to ensure
           // we refresh the cached hash for *all* changed files
-          thisVariantHasChanged ||= fasterRefreshHashIfFileChanged(filename)
+          thisVariantHasChanged = thisVariantHasChanged || fasterRefreshHashIfFileChanged(filename)
         }
 
         // check to actually make sure the css file exists
