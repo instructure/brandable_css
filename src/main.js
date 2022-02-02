@@ -41,10 +41,10 @@ async function findChangedBundles (bundles) {
   const unchangedFiles = new Set()
   const toCompile = {}
 
-  function fasterHasFileChanged (filename) {
+  function fasterRefreshHashIfFileChanged (filename) {
     if (unchangedFiles.has(filename)) return false
     if (changedFiles.has(filename)) return true
-    const iHaveChanged = hasFileChanged(filename)
+    const iHaveChanged = refreshHashIfFileChanged(filename)
     iHaveChanged ? changedFiles.add(filename) : unchangedFiles.add(filename)
     if (iHaveChanged) debug(filename, 'changed')
     return iHaveChanged
@@ -65,10 +65,9 @@ async function findChangedBundles (bundles) {
 
         // check all files on disk included in this bundle to see if the've changed
         for (let filename of cached.includedFiles) {
-          if (fasterHasFileChanged(filename)) {
-            thisVariantHasChanged = true
-            // Don't break to ensure that we refresh the cached hash for any changed files
-          }
+          // Don't exit early if a file has changed to ensure
+          // we refresh the cached hash for *all* changed files
+          thisVariantHasChanged ||= fasterRefreshHashIfFileChanged(filename)
         }
 
         // check to actually make sure the css file exists
@@ -201,7 +200,7 @@ async function onFilesystemChange (eventType, filePath, details) {
       unwatch(filePath)
       return
     }
-    if (hasFileChanged(filePath)) {
+    if (refreshHashIfFileChanged(filePath)) {
       debug('changed contents', filePath)
       return await processChangedBundles(whatToCompileIfFileChanges(filePath))
     }
@@ -229,7 +228,7 @@ function whatToCompileIfFileChanges (filename) {
   return toCompile
 }
 
-function hasFileChanged (relativePath) {
+function refreshHashIfFileChanged (relativePath) {
   const cached = cache.file_checksums.data[relativePath]
   const current = relativeFileChecksum(relativePath)
   cache.file_checksums.update(relativePath, current)
