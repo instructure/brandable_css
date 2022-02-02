@@ -67,7 +67,7 @@ async function findChangedBundles (bundles) {
         for (let filename of cached.includedFiles) {
           if (fasterHasFileChanged(filename)) {
             thisVariantHasChanged = true
-            break
+            // Don't break to ensure that we refresh the cached hash for any changed files
           }
         }
 
